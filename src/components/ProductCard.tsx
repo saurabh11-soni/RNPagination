@@ -1,7 +1,7 @@
 import { View, Text, Image } from 'react-native';
 import React, { FC, memo } from 'react';
-import { ProductProps } from '../screens/useProducrts';
 import { styles } from './productCard.style';
+import { ProductProps } from '../screens/productsProps';
 
 interface ProductCardProps {
   product: ProductProps;

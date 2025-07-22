@@ -1,56 +1,19 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-
-export interface ProductProps {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  price: number;
-  discountPercentage: number;
-  rating: number;
-  stock: number;
-  tags: string[];
-  brand: string;
-  sku: string;
-  weight: number;
-  dimensions: {
-    width: number;
-    height: number;
-    depth: number;
-  };
-  warrantyInformation: string;
-  shippingInformation: string;
-  availabilityStatus: string;
-  reviews: Review[];
-  returnPolicy: string;
-  minimumOrderQuantity: number;
-  meta: {
-    createdAt: string; // ISO date string
-    updatedAt: string; // ISO date string
-    barcode: string;
-    qrCode: string;
-  };
-  images: string[];
-  thumbnail: string;
-}
-
-export interface Review {
-  rating: number;
-  comment: string;
-  date: string; // ISO date string
-  reviewerName: string;
-  reviewerEmail: string;
-}
+import { ProductProps } from './productsProps';
 
 const LIMIT = 10;
 
 const useProducrts = () => {
   const [productList, setProductList] = useState<ProductProps[]>([]);
+  const [filterProductList, setFilterProductList] = useState<ProductProps[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0); 
+  const [page, setPage] = useState(0);
   const [isEnd, setIsEnd] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   async function fetchProducts() {
     if (loading || isEnd) return;
@@ -63,6 +26,7 @@ const useProducrts = () => {
       const newProducts = response.data.products;
 
       setProductList(prev => [...prev, ...newProducts]);
+      setFilterProductList(prev => [...prev, ...newProducts]);
 
       if (newProducts.length < LIMIT) {
         setIsEnd(true); // No more products
@@ -80,12 +44,24 @@ const useProducrts = () => {
     fetchProducts();
   }, []);
 
+  function searchProduct(searchQuery: string) {
+    let search = searchQuery?.toLowerCase();
+    setSearchQuery(search);
+    const filteredItem = filterProductList?.filter(item => {
+      return item?.title?.toLowerCase().includes(search);
+    });
+
+    setProductList(filteredItem);
+  }
+
   return {
     productList,
     loading,
     error,
     loadMore: fetchProducts,
     isEnd,
+    searchQuery,
+    searchProduct,
   };
 };
 
